@@ -1,0 +1,30 @@
+config {
+  type: "table",
+  schema: "retail_silver",
+  name: "cleaned_transactions",
+  description: "Cleaned and transformed transactions from the bronze layer.",
+  assertions: {
+    nonNull: ["transaction_id", "purchase_date", "amount", "item_category"],
+    rowConditions: ["amount > 0"]
+  }
+}
+
+SELECT
+  transaction_id,
+  customer_id,
+  SAFE_CAST(purchase_date AS DATE) AS purchase_date,
+  SAFE_CAST(
+    COALESCE(NULLIF(signup_date, 'NULL'), purchase_date)
+  AS DATE) AS signup_date,
+  CAST(amount AS NUMERIC) AS amount,
+  TRIM(item_category) AS item_category,
+  CAST(
+    COALESCE(NULLIF(is_returned, 'NULL'), 'FALSE')
+  AS BOOL) AS is_returned,
+  DATE_DIFF(
+    SAFE_CAST(purchase_date AS DATE),
+    SAFE_CAST(COALESCE(NULLIF(signup_date, 'NULL'), purchase_date) AS DATE),
+    DAY
+  ) AS days_to_first_purchase
+FROM ${ref("retail_bronze", "raw_transactions")}
+WHERE CAST(amount AS NUMERIC) > 0

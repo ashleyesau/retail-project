@@ -1,0 +1,28 @@
+config {
+  type: "table",
+  schema: "retail_gold",
+  name: "analytics_customer_segments",
+  description: "Customer segments predicted by k-means model, joined back to clean transaction data.",
+  dependOnDependencyAssertions: true
+}
+
+SELECT
+  t.transaction_id,
+  t.customer_id,
+  t.purchase_date,
+  t.signup_date,
+  t.amount,
+  t.item_category,
+  t.is_returned,
+  t.days_to_first_purchase,
+  p.CENTROID_ID AS customer_segment
+FROM
+  ML.PREDICT(
+    MODEL `retail-project-499413.retail_gold.customer_segment_model`,
+    (
+      SELECT *
+      FROM ${ref("cleaned_transactions")}
+    )
+  ) AS p
+JOIN ${ref("cleaned_transactions")} AS t
+  ON t.transaction_id = p.transaction_id
