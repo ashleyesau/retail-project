@@ -1,0 +1,7 @@
+{
+  "warehouse": "bigquery",
+  "defaultSchema": "dataform",
+  "assertionSchema": "dataform_assertions",
+  "defaultDatabase": "retail-project-499413",
+  "defaultLocation": "US"
+}

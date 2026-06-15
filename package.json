@@ -1,0 +1,6 @@
+{
+  "name": "retail-pipeline",
+  "dependencies": {
+    "@dataform/core": "3.0.52"
+  }
+}
